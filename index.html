@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Binnenkort in de bioscoop — MovieMeter</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main class="screensaver" id="screensaver" aria-live="off">
+
+    <div class="bg-layer" id="bgA"></div>
+    <div class="bg-layer" id="bgB"></div>
+    <div class="overlay"></div>
+
+    <div class="stage">
+      <div class="poster-wrap">
+        <img class="poster" id="posterA" alt="" />
+        <img class="poster" id="posterB" alt="" />
+      </div>
+
+      <div class="info">
+        <h1 class="title" id="title"></h1>
+        <p class="date" id="date"></p>
+        <p class="plot" id="plot"></p>
+        <a class="credit" id="credit" href="https://www.moviemeter.nl/bioscoop/binnenkort" target="_blank" rel="noopener">
+          Bron: MovieMeter.nl
+        </a>
+      </div>
+    </div>
+
+    <div class="dots" id="dots" role="tablist" aria-label="Films"></div>
+  </main>
+
+  <script src="config.js"></script>
+  <script src="data.js"></script>
+  <script src="api.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

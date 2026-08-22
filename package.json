@@ -1,0 +1,13 @@
+{
+  "name": "moviemeter-screensaver",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Refresh tooling for the MovieMeter 'binnenkort' screensaver page.",
+  "scripts": {
+    "setup:refresh": "playwright install chromium",
+    "refresh": "node refresh.js"
+  },
+  "devDependencies": {
+    "playwright": "^1.47.0"
+  }
+}

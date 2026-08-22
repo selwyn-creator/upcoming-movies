@@ -1,0 +1,271 @@
+:root {
+  color-scheme: dark;
+  --ink: #f5f6f8;
+  --ink-dim: rgba(245, 246, 248, 0.68);
+  --ink-faint: rgba(245, 246, 248, 0.5);
+  --shadow: rgba(0, 0, 0, 0.55);
+  --cycle: 9000ms;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  height: 100%;
+  background: #06070a;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+.screensaver {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+  background: #06070a;
+}
+
+/* ---------- Background: slow Ken-Burns pan, matches the Figma motion spec
+   (translateY, 9s, linear, infinite) — restarted per movie from app.js ---------- */
+
+.bg-layer {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  filter: blur(38px) saturate(1.15) brightness(0.55);
+  transform: scale(1.28);
+  opacity: 0;
+  transition: opacity 900ms ease;
+  will-change: transform, opacity;
+}
+
+.bg-layer.active {
+  opacity: 1;
+  z-index: 1;
+}
+
+.bg-layer.panning {
+  animation: bgPan var(--cycle) linear infinite;
+}
+
+@keyframes bgPan {
+  0%   { transform: scale(1.28) translateY(11%); }
+  100% { transform: scale(1.28) translateY(-11%); }
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  background:
+    radial-gradient(120% 90% at 18% 30%, rgba(0, 0, 0, 0) 0%, rgba(6, 7, 10, 0.35) 55%, rgba(6, 7, 10, 0.85) 100%),
+    linear-gradient(to top, rgba(6, 7, 10, 0.92) 0%, rgba(6, 7, 10, 0.55) 42%, rgba(6, 7, 10, 0.35) 100%);
+}
+
+/* ---------- Stage: poster + info, laid out like the Figma frame ---------- */
+
+.stage {
+  position: relative;
+  z-index: 3;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(28px, 4vw, 72px);
+  padding: 6vh clamp(20px, 6vw, 96px);
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.poster-wrap {
+  position: relative;
+  flex: 0 0 auto;
+  width: clamp(180px, 27vw, 380px);
+  aspect-ratio: 2 / 3;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 30px 60px -15px var(--shadow), 0 10px 24px -8px rgba(0, 0, 0, 0.5);
+  background: #14161c;
+}
+
+.poster {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transform: scale(1.02);
+  transition: opacity 900ms ease, transform 9000ms linear;
+}
+
+.poster.active {
+  opacity: 1;
+  z-index: 1;
+  transform: scale(1.06);
+}
+
+.info {
+  flex: 0 1 480px;
+  max-width: 560px;
+  min-width: 0;
+  padding-top: 140px;
+}
+
+/* Base state doubles as the "hiding" transition: fast, so the outgoing film's
+   copy is fully gone (app.js waits HIDE_MS) before the next film's text is
+   written in — otherwise the incoming copy would be visible fading out. */
+
+.title {
+  margin: 0 0 14px;
+  font-size: clamp(28px, 3.4vw, 42px);
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  line-height: 1.1;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 220ms ease, transform 220ms ease;
+}
+
+.date {
+  margin: 0 0 18px;
+  font-size: clamp(15px, 1.15vw, 19px);
+  font-weight: 500;
+  color: var(--ink-dim);
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 220ms ease, transform 220ms ease;
+}
+
+.plot {
+  margin: 0 0 20px;
+  font-size: clamp(14.5px, 1.05vw, 16.5px);
+  line-height: 1.6;
+  color: var(--ink-faint);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 220ms ease, transform 220ms ease;
+}
+
+/* Reveal (showing) uses the slower, Figma-matched easing per element. */
+.title.in { opacity: 1; transform: translateY(0); transition: opacity 650ms cubic-bezier(.5,0,.5,1), transform 650ms cubic-bezier(.5,0,.5,1); }
+.date.in { opacity: 1; transform: translateY(0); transition: opacity 750ms cubic-bezier(.5,0,.5,1), transform 750ms cubic-bezier(.5,0,.5,1); }
+.plot.in { opacity: 1; transform: translateY(0); transition: opacity 1050ms cubic-bezier(.5,0,.5,1), transform 1050ms cubic-bezier(.5,0,.5,1); }
+
+.credit {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--ink-faint);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(245, 246, 248, 0.25);
+  opacity: 0.85;
+}
+.credit:hover { opacity: 1; }
+
+/* ---------- Progress dots ---------- */
+
+.dots {
+  position: absolute;
+  z-index: 4;
+  left: 50%;
+  bottom: clamp(14px, 2.5vh, 26px);
+  transform: translateX(-50%);
+  display: flex;
+  gap: 8px;
+}
+
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(245, 246, 248, 0.3);
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  transition: background 200ms ease, width 300ms ease;
+}
+
+.dot.active {
+  background: var(--ink);
+  width: 20px;
+}
+
+/* ---------- Tablet portrait + mobile: stacked variant (poster above, info below) ---------- */
+
+@media (orientation: portrait) and (max-width: 1024px) {
+  .stage {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: 20px;
+    padding: 8vh 24px;
+    height: 100%;
+  }
+
+  .poster-wrap {
+    width: clamp(150px, 46vw, 220px);
+    box-shadow: 0 20px 40px -12px var(--shadow);
+  }
+
+  .info {
+    flex: 0 0 auto;
+    max-width: 460px;
+    padding-top: 0;
+  }
+
+  .title {
+    font-size: clamp(22px, 6vw, 28px);
+  }
+
+  .date {
+    font-size: 14px;
+    margin-bottom: 14px;
+  }
+
+  .plot {
+    font-size: 14px;
+    line-height: 1.55;
+    -webkit-line-clamp: 4;
+    margin-bottom: 16px;
+  }
+
+  .credit {
+    font-size: 11px;
+  }
+
+  .overlay {
+    background:
+      radial-gradient(140% 70% at 50% 20%, rgba(0, 0, 0, 0) 0%, rgba(6, 7, 10, 0.4) 60%, rgba(6, 7, 10, 0.9) 100%),
+      linear-gradient(to top, rgba(6, 7, 10, 0.95) 0%, rgba(6, 7, 10, 0.6) 46%, rgba(6, 7, 10, 0.4) 100%);
+  }
+}
+
+/* ---------- Mobile (phone portrait) ---------- */
+
+@media (orientation: portrait) and (max-width: 600px) {
+  .stage {
+    gap: 40px;
+  }
+
+  .poster-wrap {
+    width: 58vw;
+  }
+
+  .plot {
+    -webkit-line-clamp: 2;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bg-layer.panning { animation: none; }
+  .poster.active { transform: none; transition: opacity 400ms ease; }
+  .title, .date, .plot { transition-duration: 300ms; }
+}
